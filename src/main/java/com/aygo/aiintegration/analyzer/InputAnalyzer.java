@@ -1,5 +1,6 @@
 package com.aygo.aiintegration.analyzer;
 
+import com.aygo.aiintegration.ChatRequest;
 import com.aygo.aiintegration.adapter.IAiAdapter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,10 +16,12 @@ public class InputAnalyzer {
     
     
 
-    public static boolean isCode(String input) {
+    public static boolean isCode(ChatRequest input) {
         if (chatGptAdapter != null) {
-            String query = "Esto es código o tiene que ver con código? Responde si o no sin mas texto" + input;
-            String response = chatGptAdapter.generateResponse(query);
+            String query = "Esto es código o tiene que ver con código? Responde si o no sin mas texto" + input.getInput();
+            ChatRequest chatRequest = new ChatRequest();
+            chatRequest.setInput(query);
+            String response = chatGptAdapter.generateResponse(chatRequest);
             return (extractContentFromResponse(response).toLowerCase().contains("sí")) ;
         }
         return false;
@@ -31,7 +34,9 @@ public class InputAnalyzer {
     public static String improveInput(String input, Boolean isCode) {
         if (chatGptAdapter != null && input.length() < 100 && !isCode) {
             String query = "Mejora esta entrada como un prompt para una IA: " + input;
-            String response = chatGptAdapter.generateResponse(query);
+            ChatRequest chatRequest = new ChatRequest();
+            chatRequest.setInput(query);
+            String response = chatGptAdapter.generateResponse(chatRequest);
             String content = extractContentFromResponse(response);
             return content != null ? content : input;
         }
@@ -43,7 +48,7 @@ public class InputAnalyzer {
             // Verifica si la respuesta es JSON
             if (!response.trim().contains("{")) {
                 System.err.println("Respuesta no válida para JSON: " + response);
-                return "Error: Respuesta no válida de OpenAI";
+                return "Error: Respuesta no válida de OpenAI debido a que " + response ;
             }
 
             JsonNode rootNode = objectMapper.readTree(response);

@@ -1,7 +1,7 @@
 package com.aygo.aiintegration.analyzer;
 
+import com.aygo.aiintegration.ChatRequest;
 import com.aygo.aiintegration.adapter.ChatGptAdapterProxy;
-import com.aygo.aiintegration.adapter.IAiAdapter;
 
 public class ChatGptFacade {
     private final PreProcessor chain;
@@ -12,10 +12,12 @@ public class ChatGptFacade {
         this.proxy = proxy;
     }
 
-    public String getResponse(String input) {
+    public String getResponse(ChatRequest input) {
         try {
-            String processed = chain.process(input);
-            return proxy.generateResponse(processed);
+            String processed = chain.process(input.getInput());
+            ChatRequest peticion = new ChatRequest();
+            peticion.setInput(processed);
+            return proxy.generateResponse(peticion);
         } catch (IllegalArgumentException e) {
             return "Error de validación: " + e.getMessage();
         } catch (Exception e) {

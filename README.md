@@ -1,72 +1,102 @@
-# AIintegration
+# Enhanced ChatGPT Integration – Backend Project
 
+This project provides a robust integration with the ChatGPT (OpenAI) API using clean architectural patterns like Proxy, Chain of Responsibility, and Facade, making the system more reliable, modular, and maintainable.
 
-# Diagrama de Arquitectura
+---
 
- ![image](https://github.com/ginnko2019/aaintegration/blob/master/Assets/ArquitecturaAiintegrationS.jpg)
+##  Key Features
 
-## AWS S3: 
-Servicio de AWS empleado para el despliegue del front-end. Este servicio se emplea comúnmente para alojar documentos. Cómo el front-end posee tecnologías simples es perfecto para poderlo alojar y desplegar.
-## AWS EC2: 
-Máquina virtual de AWS que permite desplegar aplicaciones back-end. Se seleccionó una instancia
-T2-MICRO.
-## AWS Elastic IP: 
-En AWS, el servicio EC2 utiliza direcciones IP dinámicas por razones de seguridad, lo que puede ocasionar problemas de integración con el front-end,
-ya que estas direcciones pueden cambiar en determinados momentos, provocando desconexiones entre el back-end y el front-end. Para solucionar este inconveniente, AWS
-ofrece Elastic IP, que proporciona una direccián IP estática y permite una conexión transparente entre el back-end y el
-front-end.
-Azure OpenAI Service: Este servicio proporciona herramientas y APIs que facilitan la integración de capacidades de procesamiento del lenguaje natural, generación de texto,
-comprensión de lenguaje y otras funcionalidades de IA en aplicaciones y sistemas.
-## OpenAI ChatGPT: Este servicio contiene un conjunto
-de herramientas proporcionadas por OpenAI que permite a desarrolladores y empresas acceder, integrar y utilizar modelos de inteligencia artificial avanzados en sus aplicaciones y
-servicios. Esta plataforma ofrece una variedad de productos y APIs, facilitando el desarrollo de soluciones basadas en
-inteligencia artificial.
+###  Intelligent ChatGPT Flow
 
-# Diagrama de Clases
+- Structured POST requests to the /v1/chat/completions endpoint.
+- Cleaned, validated input before reaching the AI.
+- Simplified, extracted, and formatted responses to the client.
 
- ![image](https://github.com/ginnko2019/aaintegration/blob/master/Assets/AIIntegrationDiagramClass.jpg)
+---
 
-# Patrones de Software empleados
-Para garantizar una integración adecuada en el prototipo propuesto se emplearon diferentes patrones investigados en el estado del arte de este documento, cada patrón se detallará
-a continuación junto con la forma en que se implementó dentro del software.
-## Patrón de Two-Phase Predictions
-Dentro del prototipo en el front-end que es la aplicación del lado del cliente, se creó un módulo desarrollado en JavaScript que realiza una validación previa de la entrada
-del usuario, con el objetivo de responder preguntas triviales con respuestas pre-programadas, que garantizan el cuidado
-y la optimización de los recursos. Dicho módulo posee internamente un dataSet con datos de preguntas y respuestas
-típicas.
-## Patrón de Componentes Independientes (Independent Components)
-Dentro del back-end del prototipo se implementó un esquema de adaptadores abstractos, que permite adicionar
-nuevos controladores de herramientas de IA sin necesidad de realizar modificaciones mayores en el código. Esto permite
-que el software sea escalable y fácilmente mantenible en el tiempo.
-## Patrón de Validación de Entradas 
-Cuando la petición llega al back-end desde la aplicación de Cliente, la entrada se procesa mediante una clase llamada
-InputAnalizer, esta clase se encarga de analizar el contenido de la respuesta para determinar si esta debe ser mejorada
-(se utiliza otro controlador de IA para lograrlo), si contiene caracteres inválidos que necesiten ser ajustados o si está lista
-para ser procesada por los modelos de IA. 
-## Patrón Adaptador
-Este patrón va muy de la mano con el patrón de com- ponentes independientes, dentro de la solución propuesta
-se empleó como un medio de estandarización que permite los controladores de las IA se puedan adaptar fácilmente al
-software cumpliendo un contrato funcional, que garantiza que cada uno de estos implemente los métodos necesarios para poder integrarse efectivamente con la aplicación. 
+## 🛠 Design Patterns Used
 
-# Mejoras en la integración con ChatGPT
+### Improved Proxy
 
-Se implementaron los siguientes patrones y mejoras para optimizar el uso de ChatGPT en el backend:
+- Response caching with a configurable TTL (Time to Live).
+- Detailed logging of:
+  - API response times
+  - Cache usage
+  - Fallback behavior when OpenAI is unreachable
+- Friendly fallback message in case of API failure.
 
-- **Proxy Mejorado:**
-  - Cacheo de respuestas con expiración (TTL configurable).
-  - Logging detallado de tiempos de respuesta, uso de cache y errores.
-  - Fallback amigable si la API de OpenAI falla.
+---
 
-- **Cadena de Responsabilidad Mejorada:**
-  - Validación de entrada (no vacía, longitud mínima configurable).
-  - Limpieza y mejora de la entrada antes de enviarla a la IA.
-  - Modularidad para agregar más pasos de procesamiento fácilmente.
+### Chain of Responsibility
 
-- **Fachada (Facade):**
-  - Centraliza el flujo de uso de ChatGPT, ocultando la complejidad interna.
-  - Maneja errores de validación y excepciones inesperadas de forma clara y amigable.
+- Input is processed by sequential processors:
+  - `ValidateInputProcessor`
+  - `CleanInputProcessor`
+  - `ImproveInputProcessor`
+- Modular: Easily plug in more processors (e.g. for intent detection, spellcheck, etc.)
 
-- **Manejo de errores centralizado:**
-  - Todos los errores de validación y de OpenAI se devuelven como mensajes claros y no causan caídas en el backend.
+---
 
-Estas mejoras hacen que la integración con ChatGPT sea más robusta, eficiente, mantenible y fácil de extender en el futuro.
+###  Facade (ChatGptFacade)
+
+- Central entry point to the ChatGPT flow.
+- Orchestrates input validation, AI call, and response handling.
+- Manages exceptions gracefully.
+
+---
+
+###  Centralized Error Handling
+
+- Blocks:
+  - Empty inputs
+  - Offensive language
+  - Nonsense or junk text (e.g., "asdf", "lorem ipsum")
+- Returns clear, user-friendly error messages
+- Prevents backend crashes due to OpenAI/API issues
+
+---
+
+##  Project Structure
+```
+com.aygo.aiintegration
+│
+├── analyzer # Input processing components
+├── adapter # Interface and ChatGPT adapter (includes proxy)
+├── controller # REST controllers
+├── service # Core logic orchestration
+├── ChatRequest.java # Input model
+└── ChatGptFacade.java # ChatGPT logic facade
+```
+### Requeriments
+- Java 17+
+
+- Spring Boot 3.x
+
+- Maven or Gradle
+
+- Internet connection (for OpenAI access)
+## Installing
+Clone the repository:
+```sh
+git clone <https://github.com/Daniel-Aldana10/ChatGPT>
+cd ChatGPT
+```
+Build the project using Maven:
+```sh
+mvn clean install
+```
+---
+
+## Configuration Instructions
+
+### Create a `.env` File in the Project Root
+
+Create a file named `.env` and include the following:
+
+api.chatgpt.key=xx-xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+api.chatgpt.URL=https://api.openai.com/v1/chat/completions
+
+## Authors
+* **Daniel Aldana** - [GitHub](https://github.com/Daniel-Aldana10)
+
