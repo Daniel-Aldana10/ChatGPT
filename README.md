@@ -109,7 +109,7 @@ api.chatgpt.URL=https://api.openai.com/v1/chat/completions
 
 ## Design 
 
-![diseño](assets/diagrama.png)
+![diseño](assets/Diagrama.png)
 
 ## Authors
 * **Daniel Aldana** - [GitHub](https://github.com/Daniel-Aldana10)
