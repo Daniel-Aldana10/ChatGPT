@@ -7,6 +7,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Adapter for communicating with the OpenAI ChatGPT API.
+ * Implements the IAiAdapter interface to provide a unified way to generate responses.
+ */
 public class ChatGptAdapter implements IAiAdapter{
 
     private final WebClient webClient;
@@ -14,15 +18,24 @@ public class ChatGptAdapter implements IAiAdapter{
     private final String apiUrl;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * Constructs a new ChatGptAdapter.
+     * @param webClient The WebClient instance for HTTP requests
+     * @param apiKey The OpenAI API key
+     * @param apiUrl The OpenAI API endpoint URL
+     */
     public ChatGptAdapter(WebClient webClient, String apiKey, String apiUrl) {
         this.webClient = webClient;
         this.apiKey = apiKey;
         this.apiUrl = apiUrl;
     }
 
-
-
-   @Override
+    /**
+     * Sends a prompt to the OpenAI API and returns the raw response as a String.
+     * @param input The user input wrapped in a ChatRequest
+     * @return The raw response from OpenAI as a String
+     */
+    @Override
     public String generateResponse(ChatRequest input) {
         try {
             String requestBody = objectMapper.writeValueAsString(Map.of(
@@ -49,7 +62,10 @@ public class ChatGptAdapter implements IAiAdapter{
         }
     }
 
-
+    /**
+     * Returns the adapter status. (Currently always returns "general")
+     * @return The status string
+     */
     @Override
     public String getEstado() {
         return "general";

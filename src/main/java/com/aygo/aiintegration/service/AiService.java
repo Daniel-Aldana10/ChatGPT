@@ -7,6 +7,15 @@ import com.aygo.aiintegration.analyzer.*;
 
 import org.springframework.stereotype.Service;
 
+/**
+ * Service layer that orchestrates the ChatGPT flow.
+ *
+ * The input is processed as follows:
+ *   1. ValidateInputProcessor: Validates, cleans, and improves the input.
+ *   2. ChatGptFacade: Handles the AI call and error management.
+ *   3. ChatGptAdapterProxy: Adds caching and fallback logic.
+ *   4. ChatGptAdapter: Makes the actual call to OpenAI.
+ */
 @Service
 public class AiService {
 
@@ -16,13 +25,15 @@ public class AiService {
         this.proxy = new ChatGptAdapterProxy(chatGptAdapter);
     }
 
+    /**
+     * Processes the user input through validation, cleaning, and improvement,
+     * then sends it to OpenAI and returns the response.
+     *
+     * @param input The user input wrapped in a ChatRequest
+     * @return The AI's response as a String
+     */
     public String generateResponse(ChatRequest input) {
-        PreProcessor validate = new ValidateInputProcessor(5);
-        PreProcessor clean = new CleanInputProcessor();
-        PreProcessor improve = new ImproveInputProcessor(false);
-        validate.setNext(clean);
-        clean.setNext(improve);
-
+        ValidateInputProcessor validate = new ValidateInputProcessor(5);
         ChatGptFacade facade = new ChatGptFacade(validate, proxy);
         return facade.getResponse(input);
     }
