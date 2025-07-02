@@ -54,10 +54,10 @@ public class ValidateInputProcessor{
             throw new IllegalArgumentException("La entrada contiene repeticiones innecesarias.");
         }
 
-        if (cleaned.length() > 1000) {
+        /*if (cleaned.length() > 1000) {
             throw new IllegalArgumentException("La entrada es demasiado larga.");
         }
-
+        */
         // Mejora básica: si es corto y no parece código, lo convierte en pregunta o petición clara
         String improved = cleaned;
         if (improved.length() < 100) {
